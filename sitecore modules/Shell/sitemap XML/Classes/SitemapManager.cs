@@ -38,6 +38,10 @@ namespace Sitecore.Modules.SitemapXML
     public class SitemapManager
     {
         //private static string sitemapUrl;
+        private const string protocol_Http = "http";
+        private const string protocol_Https = "https";
+        private const string protocol_sep = "://";
+
 
         private static StringDictionary m_Sites;
         public Database Db
@@ -187,44 +191,57 @@ namespace Sitecore.Modules.SitemapXML
             options.SiteResolving = Sitecore.Configuration.Settings.Rendering.SiteResolving;
             options.Site = SiteContext.GetSite(site.Name);
             options.AlwaysIncludeServerUrl = false;
-
+           
             string url = Sitecore.Links.LinkManager.GetItemUrl(item, options);
-
+      
             string serverUrl = SitemapManagerConfiguration.GetServerUrlBySite(site.Name);
-            if (serverUrl.Contains("http://"))
+
+            string protocol = SitemapManagerConfiguration.GetProtocolBySite(site.Name);
+            
+            Log.Warn(string.Format("GetItemUrl: URL:{0} SiteName:{1} ServerUrl:{2}", url, site.Name, serverUrl), this);
+
+
+            var scheme = protocol_Http + protocol_sep;
+            if (serverUrl.Contains(scheme))
             {
-                serverUrl = serverUrl.Substring("http://".Length);
+                serverUrl = serverUrl.Substring(scheme.Length);
             }
+            scheme = protocol_Https + protocol_sep;
+            if (serverUrl.Contains(scheme))
+            {
+                serverUrl = serverUrl.Substring(scheme.Length);
+            }
+            scheme = protocol + protocol_sep;
 
             StringBuilder sb = new StringBuilder();
 
             if (!string.IsNullOrEmpty(serverUrl))
             {
-                if (url.Contains("://") && !url.Contains("http"))
+                if (url.Contains(protocol_sep) && !url.Contains(protocol))
                 {
-                    sb.Append("http://");
+                    sb.Append(protocol + protocol_sep);
                     sb.Append(serverUrl);
                     if (url.IndexOf("/", 3) > 0)
                         sb.Append(url.Substring(url.IndexOf("/", 3)));
                 }
                 else
                 {
-                    sb.Append("http://");
+                    sb.Append(scheme);
                     sb.Append(serverUrl);
                     sb.Append(url);
                 }
             }
             else if (!string.IsNullOrEmpty(site.Properties["hostname"]))
             {
-                sb.Append("http://");
+                sb.Append(scheme);
                 sb.Append(site.Properties["hostname"]);
                 sb.Append(url);
             }
             else
             {
-                if (url.Contains("://") && !url.Contains("http"))
+                if (url.Contains(protocol_sep) && !url.Contains(protocol))
                 {
-                    sb.Append("http://");
+                    sb.Append(scheme);
                     sb.Append(url);
                 }
                 else

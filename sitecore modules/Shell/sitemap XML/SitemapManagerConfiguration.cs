@@ -136,19 +136,35 @@ namespace Sitecore.Modules.SitemapXML
 
         public static string GetServerUrlBySite(string name)
         {
+            return GetAttributeBySite(name, "serverUrl");
+        }
+
+        public static string GetProtocolBySite(string name)
+        {
+            var result = GetAttributeBySite(name, "protocol");
+            return string.IsNullOrEmpty(result) ? "http" : result;
+        }
+
+
+        public static string GetAttributeBySite(string siteName, string attributeName)
+        {
             string result = string.Empty;
 
             foreach (XmlNode node in Factory.GetConfigNodes("sitemapVariables/sites/site"))
             {
 
-                if (XmlUtil.GetAttribute("name", node) == name)
+                if (XmlUtil.GetAttribute("name", node) == siteName)
                 {
-                    result = XmlUtil.GetAttribute("serverUrl", node);
+                    if (XmlUtil.HasAttribute(attributeName, node))
+                    {
+                        result = XmlUtil.GetAttribute(attributeName, node);
+                    }
                     break;
                 }
             }
 
             return result;
         }
+
     }
 }
