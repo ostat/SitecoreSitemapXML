@@ -61,20 +61,26 @@ namespace Sitecore.Modules.SitemapXML
 
         private void BuildSiteMap(string sitename, string sitemapUrlNew)
         {
-            Site site = Sitecore.Sites.SiteManager.GetSite(sitename);
-            SiteContext siteContext = Factory.GetSite(sitename);
-            string rootPath = siteContext.StartPath;
+            try
+            {
+                Site site = Sitecore.Sites.SiteManager.GetSite(sitename);
+                SiteContext siteContext = Factory.GetSite(sitename);
+                string rootPath = siteContext.StartPath;
 
-            List<Item> items = GetSitemapItems(rootPath);
+                List<Item> items = GetSitemapItems(rootPath);
 
 
-            string fullPath = MainUtil.MapPath(string.Concat("/", sitemapUrlNew));
-            string xmlContent = this.BuildSitemapXML(items, site);
+                string fullPath = MainUtil.MapPath(string.Concat("/", sitemapUrlNew));
+                string xmlContent = this.BuildSitemapXML(items, site);
 
-            StreamWriter strWriter = new StreamWriter(fullPath, false);
-            strWriter.Write(xmlContent);
-            strWriter.Close();
-
+                StreamWriter strWriter = new StreamWriter(fullPath, false);
+                strWriter.Write(xmlContent);
+                strWriter.Close();
+            }
+            catch (System.Exception ex)
+            {
+                throw new System.Exception(string.Format("unable to BuildSiteMap for sitename='{0}' sitemapUrlNew='{1}'", sitename, sitemapUrlNew), ex);
+            }
         }
 
 
@@ -271,9 +277,15 @@ namespace Sitecore.Modules.SitemapXML
 
 
             Database database = Factory.GetDatabase(SitemapManagerConfiguration.WorkingDatabase);
-
+            if (database == null)
+            {
+                throw new Exceptions.InvalidItemException("Database item is null");
+            }
             Item contentRoot = database.Items[rootPath];
-
+            if (contentRoot == null)
+            {
+                throw new Exceptions.InvalidItemException(string.Format("Unable to get access to root item: '{0}'", rootPath));
+            }
             Item[] descendants;
             Sitecore.Security.Accounts.User user = Sitecore.Security.Accounts.User.FromName(@"extranet\Anonymous", true);
             using (new Sitecore.Security.Accounts.UserSwitcher(user))
