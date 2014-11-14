@@ -195,11 +195,7 @@ namespace Sitecore.Modules.SitemapXML
             string url = Sitecore.Links.LinkManager.GetItemUrl(item, options);
       
             string serverUrl = SitemapManagerConfiguration.GetServerUrlBySite(site.Name);
-
             string protocol = SitemapManagerConfiguration.GetProtocolBySite(site.Name);
-            
-            Log.Warn(string.Format("GetItemUrl: URL:{0} SiteName:{1} ServerUrl:{2}", url, site.Name, serverUrl), this);
-
 
             var scheme = protocol_Http + protocol_sep;
             if (serverUrl.Contains(scheme))
@@ -250,7 +246,10 @@ namespace Sitecore.Modules.SitemapXML
                 }
             }
 
-            return sb.ToString();
+            var result = sb.ToString();
+            Log.Debug(string.Format("Getting url for item: SiteName:{1} ServerUrl:{2} protocol:{4} URL:{0} \n item url result:{5}", url, site.Name, serverUrl, protocol, result), this);
+
+            return result;
 
         }
 
