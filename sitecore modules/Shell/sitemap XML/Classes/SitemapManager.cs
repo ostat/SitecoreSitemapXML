@@ -247,7 +247,7 @@ namespace Sitecore.Modules.SitemapXML
             }
 
             var result = sb.ToString();
-            Log.Debug(string.Format("Getting url for item: SiteName:{1} ServerUrl:{2} protocol:{4} URL:{0} \n item url result:{5}", url, site.Name, serverUrl, protocol, result), this);
+            Log.Debug(string.Format("Getting url for item: SiteName:{1} ServerUrl:{2} protocol:{3} URL:{0} \n item url result:{4}", url, site.Name, serverUrl, protocol, result), this);
 
             return result;
 
